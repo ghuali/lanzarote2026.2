@@ -1,4 +1,3 @@
-87 % de almacenamiento usado … Si te quedas sin espacio, no podrás guardar archivos en Drive, crear copias de seguridad en Google Fotos ni usar Gmail. Disfruta de 100 GB de almacenamiento por 1,99 € 0,49 € durante 3 meses (precio personalizado).
 <?php
 $peliculas = [
     [
