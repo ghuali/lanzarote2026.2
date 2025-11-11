@@ -1,0 +1,7 @@
+RewriteEngine On
+
+RewriteRule ^usuarios/modi/([0-9]+)$ index.php?seccion=usuarios&oper=modi&id=$1 [L]
+RewriteRule ^usuarios/cons/([0-9]+)$ index.php?seccion=usuarios&oper=cons&id=$1 [L]
+RewriteRule ^usuarios/alta/([0-9]+)$ index.php?seccion=usuarios&oper=alta&id=$1 [L]
+RewriteRule ^usuarios/([0-9]+)$ index.php?seccion=usuarios&oper=lit&pagina=$1 [L]
+RewriteRule ^usuarios/([A-z]+)$ index.php?

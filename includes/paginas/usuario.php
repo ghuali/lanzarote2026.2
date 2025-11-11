@@ -274,6 +274,14 @@ class Usuario
 
     }
 
+    static function del()
+    {
+        $boton_enviar = "<button type=\"submit\" class=\"btn btn-primary\">". Idioma::lit('enviar')."</button>";
+        $errores = [];
+        $mensaje_exito='';
+        $disabled='';
+    }
+
 
     static function listado()
     {
