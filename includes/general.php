@@ -41,6 +41,9 @@ spl_autoload_register(function ($class) {
         case 'UsuarioController':
             require_once "includes/paginas/usuario.controller.php";
         break;
+        case 'HorarioController':
+            require_once "includes/paginas/horario.controller.php";
+        break;
         case 'Campo':
             require_once "includes/campo.php";
         break;
@@ -67,6 +70,9 @@ spl_autoload_register(function ($class) {
         break;
         case 'Usuario':
                 require_once "includes/modelos/usuario.php";
+        break;
+        case 'Horario':
+                require_once "includes/modelos/horario.php";
         break;
     }
 });

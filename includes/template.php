@@ -76,6 +76,10 @@
                     $contenido = UsuarioController::pintar();
                 break;
 
+                case 'horario':
+                    $contenido = HorarioController::pintar();
+                break;
+
                 default:
                     $contenido = PortadaController::pintar();
                 break;
