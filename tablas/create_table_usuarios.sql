@@ -1,3 +1,5 @@
+#\. /var/www/html/lanzarote.lan/tablas/create_table_usuarios.sql
+
 DROP TABLE usuarios;
 CREATE TABLE usuarios(
      id            INT NOT NULL AUTO_INCREMENT PRIMARY KEY
