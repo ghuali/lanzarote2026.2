@@ -1,5 +1,7 @@
 <?php
 
+ob_start() ;
+
 define('LISTADO_TOTAL_POR_PAGINA',10);
 
 define('EREG_VALIDACION_EMAIL', '/^[A-z0-9\\._-]+@[A-z0-9][A-z0-9-]*(\\.[A-z0-9_-]+)*\\.([A-z]{2,6})$/');
@@ -41,8 +43,8 @@ spl_autoload_register(function ($class) {
         case 'UsuarioController':
             require_once "includes/paginas/usuario.controller.php";
         break;
-        case 'HorarioController':
-            require_once "includes/paginas/horario.controller.php";
+        case 'CalendarioController':
+            require_once "includes/paginas/calendario.controller.php";
         break;
         case 'Campo':
             require_once "includes/campo.php";
@@ -59,6 +61,9 @@ spl_autoload_register(function ($class) {
         case 'Hidden':
             require_once "includes/elementos/hidden.php";
         break;
+        case 'Select':
+            require_once "includes/elementos/select.php";
+        break;
         case 'IEmail':
             require_once "includes/elementos/iemail.php";
         break;
@@ -71,8 +76,8 @@ spl_autoload_register(function ($class) {
         case 'Usuario':
                 require_once "includes/modelos/usuario.php";
         break;
-        case 'Horario':
-                require_once "includes/modelos/horario.php";
+        case 'Curso':
+            require_once "includes/modelos/curso.php";
         break;
     }
 });
