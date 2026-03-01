@@ -120,5 +120,15 @@ spl_autoload_register(function ($class) {
         case 'AlumnoController':
             require_once "includes/paginas/alumno.controller.php";
         break;
+
+        case 'Checkbox':
+            require_once "includes/elementos/checkbox.php";
+        break;
+        case 'Modulo':
+            require_once "includes/modelos/modulo.php";
+        break;
+        case 'ModuloController':
+            require_once "includes/paginas/modulo.controller.php";
+        break;
             }
 });

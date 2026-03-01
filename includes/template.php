@@ -99,6 +99,10 @@
                     $contenido = AlumnoController::pintar();
                 break;
 
+                case 'modulos':
+                    $contenido = ModuloController::pintar();
+                break;
+
                 default:
                     $contenido = PortadaController::pintar();
                 break;

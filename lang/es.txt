@@ -36,3 +36,5 @@ aulas:Aulas
 tutores:Tutores
 profesores:Profesores
 equipos:Equipos
+modulos:Módulos
+es_optativo:Es optativo
