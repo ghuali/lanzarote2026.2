@@ -110,5 +110,15 @@ spl_autoload_register(function ($class) {
         case 'EquipoController':
             require_once "includes/paginas/equipo.controller.php";
         break;
+
+        case 'RadioButton':
+            require_once "includes/elementos/radiobutton.php";
+        break;
+        case 'Alumno':
+            require_once "includes/modelos/alumno.php";
+        break;
+        case 'AlumnoController':
+            require_once "includes/paginas/alumno.controller.php";
+        break;
             }
 });

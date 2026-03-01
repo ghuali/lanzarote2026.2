@@ -28,7 +28,7 @@ class RadioButton extends Elemento
         {
             $checked = ($valor_actual == $value) ? 'checked' : '';
             $radios .= "
-                <div class=\"form-check\">
+                <div class=\"form-check form-check-inline\">
                     <input class=\"form-check-input\" type=\"radio\" name=\"{$this->nombre}\" id=\"{$this->nombre}_{$value}\" value=\"{$value}\" {$checked} {$this->disabled}>
                     <label class=\"form-check-label\" for=\"{$this->nombre}_{$value}\">{$label}</label>
                 </div>

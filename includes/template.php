@@ -95,6 +95,10 @@
                     $contenido = CalendarioController::pintar();
                 break;
 
+                case 'alumnos':
+                    $contenido = AlumnoController::pintar();
+                break;
+
                 default:
                     $contenido = PortadaController::pintar();
                 break;

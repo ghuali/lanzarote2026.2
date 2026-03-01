@@ -31,3 +31,8 @@ operacion_exito:Operación realizada con éxito
 usuarios:Usuarios
 volver:Volver
 title_usuarios:Gestión de Usuarios
+alumnos:Alumnos
+aulas:Aulas
+tutores:Tutores
+profesores:Profesores
+equipos:Equipos
