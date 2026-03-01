@@ -103,5 +103,12 @@ spl_autoload_register(function ($class) {
         case 'ProfesorController':
             require_once "includes/paginas/profesor.controller.php";
         break;
-    }
+
+        case 'Equipo':
+            require_once "includes/modelos/equipo.php";
+        break;
+        case 'EquipoController':
+            require_once "includes/paginas/equipo.controller.php";
+        break;
+            }
 });

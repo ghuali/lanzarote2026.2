@@ -1,0 +1,24 @@
+<?php
+
+class Equipo extends Base
+{
+    function __construct()
+    {
+        $this->tabla = 'equipos';
+    }
+
+    function cargar()
+    {
+        $datos_consulta = $this->get_rows([
+            'select' => 'id, nombre, tipo, numero_serie, estado'
+        ]);
+
+        $equipos = [];
+        foreach($datos_consulta as $registro)
+        {
+            $equipos[$registro['id']] = $registro['numero_serie'] . ' - ' . $registro['nombre'];
+        }
+
+        return $equipos;
+    }
+}

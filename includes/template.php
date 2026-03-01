@@ -69,11 +69,26 @@
 
         static function seccion($seccion)
         {
-
             switch($seccion)
             {
                 case 'usuarios':
                     $contenido = UsuarioController::pintar();
+                break;
+
+                case 'aulas':
+                    $contenido = AulaController::pintar();
+                break;
+
+                case 'tutores':
+                    $contenido = TutorController::pintar();
+                break;
+
+                case 'profesores':
+                    $contenido = ProfesorController::pintar();
+                break;
+
+                case 'equipos':
+                    $contenido = EquipoController::pintar();
                 break;
 
                 case 'calendario':
@@ -86,14 +101,19 @@
             }
 
             return $contenido;
-
-
         }
 
         static function navegacion($total_registros, $pagina)
         {
-            $pagina_siguiente = ($total_registros == LISTADO_TOTAL_POR_PAGINA)?  "<li class=\"page-item\"><a class=\"page-link\" href=\"/usuarios/{$pagina}\">Siguiente</a></li>" : '';
-            $pagina_anterior  = ($pagina != 1)? "<li class=\"page-item\"><a class=\"page-link\" href=\"/usuarios/". ($pagina-2) ."\">Anterior</a></li>" : '';
+            $seccion = Campo::val('seccion');
+
+            $pagina_siguiente = ($total_registros == LISTADO_TOTAL_POR_PAGINA)
+                ? "<li class=\"page-item\"><a class=\"page-link\" href=\"/{$seccion}/{$pagina}\">Siguiente</a></li>"
+                : '';
+
+            $pagina_anterior = ($pagina != 1)
+                ? "<li class=\"page-item\"><a class=\"page-link\" href=\"/{$seccion}/". ($pagina-2) ."\">Anterior</a></li>"
+                : '';
 
             return "
                 <nav>
@@ -103,9 +123,6 @@
                     </ul>
                 </nav>
             ";
-
-
-
         }
 
     }
