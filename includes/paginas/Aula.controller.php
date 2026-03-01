@@ -42,7 +42,7 @@ class AulaController
         self::$oper   = new Hidden(['nombre' => 'oper']);
         self::$id     = new Hidden(['nombre' => 'id']);
         self::$nombre = new Text(['nombre' => 'nombre']);
-        self::$letra  = new Select(['nombre' => 'letra', 'opciones' => ['D'=>'Derecha','I'=>'Izquierda']]);
+        self::$letra  = new Select(['nombre' => 'letra', 'options' => ['D'=>'Derecha','I'=>'Izquierda']]);
         self::$numero = new Number(['nombre' => 'numero']);
         self::$planta = new Select([
     'nombre' => 'planta',

@@ -76,7 +76,7 @@
                     $contenido = UsuarioController::pintar();
                 break;
 
-                 case 'calendario':
+                case 'calendario':
                     $contenido = CalendarioController::pintar();
                 break;
 

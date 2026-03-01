@@ -52,7 +52,8 @@ class TutorController
             default:     $contenido = self::listado(); break;
         }
 
-        $h1cabecera = "<h1>Gestión de Tutores</h1>";
+        if (Campo::val('modo') != 'ajax')
+            $h1cabecera = "<h1>Gestión de Tutores</h1>";
 
         return "
         <div class=\"container contenido\">
@@ -114,7 +115,9 @@ class TutorController
     static function modi()
     {
         $boton_enviar = BOTON_ENVIAR;
-        $mensaje_exito='';
+        $mensaje_exito = '...';
+        $disabled = " disabled=\"disabled\" ";
+        $boton_enviar = '';
 
         if(!Campo::val('paso'))
         {
