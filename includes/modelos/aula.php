@@ -10,7 +10,7 @@ class Aula extends Base
     function cargar()
     {
         $datos = [];
-        $datos['select'] = 'id_aula, nombre, letra, numero, planta';
+        $datos['select'] = 'id, nombre, letra, numero, planta';
 
         // Obtiene las filas usando la función heredada de Base
         $datos_consulta = $this->get_rows($datos);
@@ -21,7 +21,7 @@ class Aula extends Base
 
             // Formato final para mostrar en dropdowns, listados, etc.
             // Ejemplo: "101 - 1DAW (D, Primera)"
-            $aulas[$registro['id_aula']] =
+            $aulas[$registro['id']] =
                 $registro['numero'] . ' - ' .
                 $registro['nombre'] .
                 ' (' . $registro['letra'] . ', ' . $registro['planta'] . ')';

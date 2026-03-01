@@ -79,5 +79,29 @@ spl_autoload_register(function ($class) {
         case 'Curso':
             require_once "includes/modelos/curso.php";
         break;
+        case 'RadioButton':
+            require_once "includes/elementos/radiobutton.php";
+        break;
+        case 'Checkbox':
+            require_once "includes/elementos/checkbox.php";
+        break;
+        case 'Aula':
+            require_once "includes/modelos/aula.php";
+        break;
+        case 'AulaController':
+            require_once "includes/paginas/aula.controller.php";
+        break;
+        case 'Tutor':
+            require_once "includes/modelos/tutor.php";
+        break;
+        case 'TutorController':
+            require_once "includes/paginas/tutor.controller.php";
+        break;
+        case 'Profesor':
+            require_once "includes/modelos/profesor.php";
+        break;
+        case 'ProfesorController':
+            require_once "includes/paginas/profesor.controller.php";
+        break;
     }
 });

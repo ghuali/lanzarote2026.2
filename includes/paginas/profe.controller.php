@@ -1,15 +1,14 @@
 <?php
 
 if (Campo::val('modo') == 'ajax')
-    define('BOTON_ENVIAR',"<button onclick=\"fetchJSON('/profesores/".Campo::val('oper')."/". Campo::val('id') ."?modo=ajax','formulario');return false\" class=\"btn btn-primary\">Enviar</button>");
+    define('BOTON_ENVIAR',"<button onclick=\"fetchJSON('/profesores/".Campo::val('oper')."/". Campo::val('id') ."?modo=ajax','formulario');return false\" class=\"btn btn-primary\">". Idioma::lit('enviar'.Campo::val('oper'))."</button>");
 else
-    define('BOTON_ENVIAR',"<button type=\"submit\" class=\"btn btn-primary\">Enviar</button>");
+    define('BOTON_ENVIAR',"<button type=\"submit\" class=\"btn btn-primary\">". Idioma::lit('enviar'.Campo::val('oper'))."</button>");
 
 class ProfesorController
 {
     static $id, $nombre, $email, $es_tutor, $cursos, $oper, $paso;
 
-    // Inicialización de campos
     static function inicializacion_campos()
     {
         Formulario::reset();
@@ -20,13 +19,12 @@ class ProfesorController
         self::$nombre   = new Text(['nombre'=>'nombre']);
         self::$email    = new Text(['nombre'=>'email']);
         self::$es_tutor = new Checkbox(['nombre'=>'es_tutor']);
-        
-        // Cursos solo se muestran si es tutor
-        $curso_modelo = new Curso();
-        $listado_cursos = $curso_modelo->cargar(); // array id => nombre
-        self::$cursos = new Select([
-            'nombre'=>'cursos',
-            'options'=>$listado_cursos
+
+        $curso_modelo   = new Curso();
+        $listado_cursos = $curso_modelo->cargar();
+        self::$cursos   = new Select([
+            'nombre'  => 'cursos',
+            'options' => $listado_cursos
         ]);
 
         Formulario::cargar_elemento(self::$paso);
@@ -38,7 +36,6 @@ class ProfesorController
         Formulario::cargar_elemento(self::$cursos);
     }
 
-    // Pintar formulario según operación
     static function pintar()
     {
         $contenido = '';
@@ -46,17 +43,18 @@ class ProfesorController
 
         switch(Campo::val('oper'))
         {
-            case 'cons': $contenido = self::cons(); break;
-            case 'modi': $contenido = self::modi(); break;
-            case 'baja': $contenido = self::baja(); break;
-            case 'alta': $contenido = self::alta(); break;
+            case 'cons':    $contenido = self::cons();                    break;
+            case 'modi':    $contenido = self::modi();                    break;
+            case 'baja':    $contenido = self::baja();                    break;
+            case 'alta':    $contenido = self::alta();                    break;
             case 'alumnos': $contenido = self::alumnos(Campo::val('id')); break;
             case 'horario': $contenido = self::horario(Campo::val('id')); break;
-            default: $contenido = self::listado(); break;
+            default:        $contenido = self::listado();                 break;
         }
 
+        // ✅ Solo pintar h1 fuera de ajax
         if (Campo::val('modo') != 'ajax')
-            $h1cabecera = "<h1>Gestión de Profesores</h1>";
+            $h1cabecera = "<h1>". Idioma::lit('titulo'.Campo::val('oper'))." ". Idioma::lit(Campo::val('seccion')) ."</h1>";
 
         return "
         <div class=\"container contenido\">
@@ -78,19 +76,15 @@ class ProfesorController
     {
         Formulario::sincro_form_bbdd($registro);
 
-        // Si es tutor, seleccionamos los cursos asignados
-        if(!empty($registro['id_profesor']))
+        if(!empty($registro['id']))
         {
             $profesor = new Profesor();
-            $tutorias = $profesor->get_cursos($registro['id_profesor']); // array de id_curso
+            $tutorias = $profesor->get_cursos($registro['id']);
             if($tutorias)
-            {
-                Campo::val('cursos',$tutorias[0]); // selecciona el primero (ajustable a multi-select)
-            }
+                Campo::val('cursos', $tutorias[0]);
         }
     }
 
-    // Consultar
     static function cons()
     {
         $profesor = new Profesor();
@@ -99,12 +93,12 @@ class ProfesorController
         return self::formulario('',[],''," disabled=\"disabled\" ");
     }
 
-    // Eliminar
+    // ✅ Baja lógica
     static function baja()
     {
         $boton_enviar = BOTON_ENVIAR;
-        $mensaje_exito='';
-        $disabled=" disabled=\"disabled\" ";
+        $mensaje_exito = '';
+        $disabled = " disabled=\"disabled\" ";
 
         if(!Campo::val('paso'))
         {
@@ -115,19 +109,21 @@ class ProfesorController
         else
         {
             $profesor = new Profesor();
-            $profesor->borrar(Campo::val('id'));
-            $mensaje_exito = '<p class="alert alert-success">Profesor eliminado correctamente</p>';
-            $boton_enviar='';
+            $profesor->actualizar(['fecha_baja' => date('Ymd')], Campo::val('id'));
+
+            $mensaje_exito = '<p class="centrado alert alert-success">'. Idioma::lit('operacion_exito') .'</p>';
+            $boton_enviar = '';
         }
 
         return self::formulario($boton_enviar,[],$mensaje_exito,$disabled);
     }
 
-    // Modificar
+    // ✅ Deshabilitar tras éxito
     static function modi()
     {
         $boton_enviar = BOTON_ENVIAR;
-        $mensaje_exito='';
+        $mensaje_exito = '';
+        $disabled = '';
 
         if(!Campo::val('paso'))
         {
@@ -141,32 +137,30 @@ class ProfesorController
             if(!$errores)
             {
                 $profesor = new Profesor();
-                $datos = [
-                    'nombre'=>Campo::val('nombre'),
-                    'email'=>Campo::val('email'),
-                    'es_tutor'=>Campo::val('es_tutor') ? 1 : 0
-                ];
-                $profesor->actualizar($datos, Campo::val('id'));
+                $profesor->actualizar([
+                    'nombre'   => Campo::val('nombre'),
+                    'email'    => Campo::val('email'),
+                    'es_tutor' => Campo::val('es_tutor') ? 1 : 0
+                ], Campo::val('id'));
 
-                // Guardamos cursos si es tutor
                 if(Campo::val('es_tutor'))
-                {
                     $profesor->asignar_curso(Campo::val('id'), Campo::val('cursos'));
-                }
 
-                $mensaje_exito = '<p class="alert alert-success">Profesor modificado correctamente</p>';
-                $boton_enviar='';
+                $mensaje_exito = '<p class="centrado alert alert-success">'. Idioma::lit('operacion_exito') .'</p>';
+                $disabled = " disabled=\"disabled\" ";
+                $boton_enviar = '';
             }
         }
 
-        return self::formulario($boton_enviar,[],$mensaje_exito);
+        return self::formulario($boton_enviar,[],$mensaje_exito,$disabled);
     }
 
-    // Crear
+    // ✅ Deshabilitar tras éxito
     static function alta()
     {
         $boton_enviar = BOTON_ENVIAR;
-        $mensaje_exito='';
+        $mensaje_exito = '';
+        $disabled = '';
 
         if(Campo::val('paso'))
         {
@@ -174,51 +168,71 @@ class ProfesorController
             if(!$errores)
             {
                 $profesor = new Profesor();
-                $datos = [
-                    'nombre'=>Campo::val('nombre'),
-                    'email'=>Campo::val('email'),
-                    'es_tutor'=>Campo::val('es_tutor') ? 1 : 0
-                ];
-                $id = $profesor->insertar($datos);
+                $id = $profesor->insertar([
+                    'nombre'   => Campo::val('nombre'),
+                    'email'    => Campo::val('email'),
+                    'es_tutor' => Campo::val('es_tutor') ? 1 : 0
+                ]);
 
                 if(Campo::val('es_tutor'))
-                {
                     $profesor->asignar_curso($id, Campo::val('cursos'));
-                }
 
-                $mensaje_exito = '<p class="alert alert-success">Profesor creado correctamente</p>';
-                $boton_enviar='';
+                $mensaje_exito = '<p class="centrado alert alert-success">'. Idioma::lit('operacion_exito') .'</p>';
+                $disabled = " disabled=\"disabled\" ";
+                $boton_enviar = '';
             }
         }
 
-        return self::formulario($boton_enviar,[],$mensaje_exito);
+        return self::formulario($boton_enviar,[],$mensaje_exito,$disabled);
     }
 
-    // Listado
+    // ✅ Paginación y filtro de activos
     static function listado()
     {
+        if(is_numeric(Campo::val('pagina')))
+        {
+            $pagina = Campo::val('pagina');
+            $offset = LISTADO_TOTAL_POR_PAGINA * $pagina;
+        }
+        else
+        {
+            $offset = '0';
+        }
+        $pagina++;
+
         $profesor = new Profesor();
-        $datos = $profesor->get_rows();
+        $datos = $profesor->get_rows([
+            'wheremayor' => ['fecha_baja' => date('Ymd')],
+            'limit'      => LISTADO_TOTAL_POR_PAGINA,
+            'offset'     => $offset
+        ]);
 
         $filas = '';
+        $total_registros = 0;
+
         foreach($datos as $registro)
         {
             $botonera = "
-                <a onclick=\"fetchJSON('/profesores/cons/{$registro['id_profesor']}?modo=ajax')\" class=\"btn btn-secondary\">Ver</a>
-                <a onclick=\"fetchJSON('/profesores/modi/{$registro['id_profesor']}?modo=ajax')\" class=\"btn btn-primary\">Editar</a>
-                <a href=\"/profesores/baja/{$registro['id_profesor']}\" class=\"btn btn-danger\">Borrar</a>
-                <a href=\"/profesores/alumnos/{$registro['id_profesor']}\" class=\"btn btn-info\">Alumnos</a>
-                <a href=\"/profesores/horario/{$registro['id_profesor']}\" class=\"btn btn-warning\">Horario</a>
+                <a onclick=\"fetchJSON('/profesores/cons/{$registro['id']}?modo=ajax')\" data-bs-toggle=\"modal\" data-bs-target=\"#ventanaModal\" class=\"btn btn-secondary\"><i class=\"bi bi-search\"></i></a>
+                <a onclick=\"fetchJSON('/profesores/modi/{$registro['id']}?modo=ajax')\" data-bs-toggle=\"modal\" data-bs-target=\"#ventanaModal\" class=\"btn btn-primary\"><i class=\"bi bi-pencil-square\"></i></a>
+                <a href=\"/profesores/baja/{$registro['id']}\" class=\"btn btn-danger\"><i class=\"bi bi-trash\"></i></a>
+                <a href=\"/profesores/alumnos/{$registro['id']}\" class=\"btn btn-info\"><i class=\"bi bi-people\"></i></a>
+                <a href=\"/profesores/horario/{$registro['id']}\" class=\"btn btn-warning\"><i class=\"bi bi-calendar\"></i></a>
             ";
+
             $filas .= "
                 <tr>
-                    <th>{$botonera}</th>
+                    <th style=\"white-space:nowrap\" scope=\"row\">{$botonera}</th>
                     <td>{$registro['nombre']}</td>
                     <td>{$registro['email']}</td>
-                    <td>".($registro['es_tutor'] ? 'Sí':'No')."</td>
+                    <td>".($registro['es_tutor'] ? 'Sí' : 'No')."</td>
                 </tr>
             ";
+
+            $total_registros++;
         }
+
+        $barra_navegacion = Template::navegacion($total_registros, $pagina);
 
         return "
             <table class=\"table\">
@@ -232,15 +246,15 @@ class ProfesorController
                 </thead>
                 <tbody>{$filas}</tbody>
             </table>
-            <a href=\"/profesores/alta\" class=\"btn btn-primary\">Alta Profesor</a>
+            {$barra_navegacion}
+            <a href=\"/profesores/alta\" class=\"btn btn-primary\"><i class=\"bi bi-file-earmark-plus\"></i> Alta profesor</a>
         ";
     }
 
-    // Listado de alumnos de los cursos del tutor
     static function alumnos($id_profesor)
     {
         $profesor = new Profesor();
-        $alumnos = $profesor->get_alumnos($id_profesor); // array de alumnos
+        $alumnos  = $profesor->get_alumnos($id_profesor);
 
         $html = '<ul>';
         foreach($alumnos as $a) $html .= "<li>{$a['nombre']} {$a['apellidos']}</li>";
@@ -249,11 +263,10 @@ class ProfesorController
         return $html;
     }
 
-    // Horario AJAX
     static function horario($id_profesor)
     {
         $profesor = new Profesor();
-        $modulos = $profesor->get_horario($id_profesor);
+        $modulos  = $profesor->get_horario($id_profesor);
 
         $html = '<ul>';
         foreach($modulos as $m) $html .= "<li>{$m['nombre_modulo']}</li>";

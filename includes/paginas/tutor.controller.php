@@ -1,27 +1,26 @@
 <?php
 
 if (Campo::val('modo') == 'ajax')
-    define('BOTON_ENVIAR',"<button onclick=\"fetchJSON('/tutores/".Campo::val('oper')."/". Campo::val('id') ."?modo=ajax','formulario');return false\" class=\"btn btn-primary\">Enviar</button>");
+    define('BOTON_ENVIAR',"<button onclick=\"fetchJSON('/tutores/".Campo::val('oper')."/". Campo::val('id') ."?modo=ajax','formulario');return false\" class=\"btn btn-primary\">". Idioma::lit('enviar'.Campo::val('oper'))."</button>");
 else
-    define('BOTON_ENVIAR',"<button type=\"submit\" class=\"btn btn-primary\">Enviar</button>");
+    define('BOTON_ENVIAR',"<button type=\"submit\" class=\"btn btn-primary\">". Idioma::lit('enviar'.Campo::val('oper'))."</button>");
 
 class TutorController
 {
     static $id, $nombre, $email, $antiguedad, $oper, $paso;
 
-    // Inicialización de campos
     static function inicializacion_campos()
     {
         Formulario::reset();
 
-        self::$paso      = new Hidden(['nombre'=>'paso']);
-        self::$oper      = new Hidden(['nombre'=>'oper']);
-        self::$id        = new Hidden(['nombre'=>'id']);
-        self::$nombre    = new Text(['nombre'=>'nombre']);
-        self::$email     = new Text(['nombre'=>'email']);
+        self::$paso       = new Hidden(['nombre'=>'paso']);
+        self::$oper       = new Hidden(['nombre'=>'oper']);
+        self::$id         = new Hidden(['nombre'=>'id']);
+        self::$nombre     = new Text(['nombre'=>'nombre']);
+        self::$email      = new Text(['nombre'=>'email']);
         self::$antiguedad = new RadioButton([
-            'nombre'=>'antiguedad',
-            'options'=>[
+            'nombre'  => 'antiguedad',
+            'options' => [
                 '2018'=>'2018','2019'=>'2019','2020'=>'2020',
                 '2021'=>'2021','2022'=>'2022','2023'=>'2023',
                 '2024'=>'2024','2025'=>'2025'
@@ -36,7 +35,6 @@ class TutorController
         Formulario::cargar_elemento(self::$antiguedad);
     }
 
-    // Pintar la vista según operación
     static function pintar()
     {
         $contenido = '';
@@ -44,16 +42,17 @@ class TutorController
 
         switch(Campo::val('oper'))
         {
-            case 'cons': $contenido = self::cons(); break;
-            case 'modi': $contenido = self::modi(); break;
-            case 'baja': $contenido = self::baja(); break;
-            case 'alta': $contenido = self::alta(); break;
+            case 'cons':    $contenido = self::cons();                    break;
+            case 'modi':    $contenido = self::modi();                    break;
+            case 'baja':    $contenido = self::baja();                    break;
+            case 'alta':    $contenido = self::alta();                    break;
             case 'horario': $contenido = self::horario(Campo::val('id')); break;
-            default:     $contenido = self::listado(); break;
+            default:        $contenido = self::listado();                 break;
         }
 
+        // ✅ Solo fuera de ajax
         if (Campo::val('modo') != 'ajax')
-            $h1cabecera = "<h1>Gestión de Tutores</h1>";
+            $h1cabecera = "<h1>". Idioma::lit('titulo'.Campo::val('oper'))." ". Idioma::lit(Campo::val('seccion')) ."</h1>";
 
         return "
         <div class=\"container contenido\">
@@ -64,7 +63,6 @@ class TutorController
         </div>";
     }
 
-    // Generar formulario
     static function formulario($boton_enviar='',$errores=[],$mensaje_exito='',$disabled='')
     {
         Formulario::disabled($disabled);
@@ -77,7 +75,6 @@ class TutorController
         Formulario::sincro_form_bbdd($registro);
     }
 
-    // Consultar un tutor
     static function cons()
     {
         $tutor = new Tutor();
@@ -86,12 +83,12 @@ class TutorController
         return self::formulario('',[],''," disabled=\"disabled\" ");
     }
 
-    // Eliminar un tutor
+    // ✅ Baja lógica
     static function baja()
     {
         $boton_enviar = BOTON_ENVIAR;
         $mensaje_exito = '';
-        $disabled=" disabled=\"disabled\" ";
+        $disabled = " disabled=\"disabled\" ";
 
         if(!Campo::val('paso'))
         {
@@ -102,22 +99,21 @@ class TutorController
         else
         {
             $tutor = new Tutor();
-            $tutor->borrar(Campo::val('id'));
+            $tutor->actualizar(['fecha_baja' => date('Ymd')], Campo::val('id'));
 
-            $mensaje_exito = '<p class="alert alert-success">Tutor eliminado correctamente</p>';
+            $mensaje_exito = '<p class="centrado alert alert-success">'. Idioma::lit('operacion_exito') .'</p>';
             $boton_enviar = '';
         }
 
         return self::formulario($boton_enviar,[],$mensaje_exito,$disabled);
     }
 
-    // Modificar un tutor
+    // ✅ Deshabilitar tras éxito + disabled correcto
     static function modi()
     {
         $boton_enviar = BOTON_ENVIAR;
-        $mensaje_exito = '...';
-        $disabled = " disabled=\"disabled\" ";
-        $boton_enviar = '';
+        $mensaje_exito = '';
+        $disabled = '';
 
         if(!Campo::val('paso'))
         {
@@ -131,26 +127,27 @@ class TutorController
             if(!$errores)
             {
                 $tutor = new Tutor();
-                $datos_actualizar = [
-                    'nombre'=>Campo::val('nombre'),
-                    'email'=>Campo::val('email'),
-                    'antiguedad'=>Campo::val('antiguedad')
-                ];
-                $tutor->actualizar($datos_actualizar, Campo::val('id'));
+                $tutor->actualizar([
+                    'nombre'    => Campo::val('nombre'),
+                    'email'     => Campo::val('email'),
+                    'antiguedad'=> Campo::val('antiguedad')
+                ], Campo::val('id'));
 
-                $mensaje_exito = '<p class="alert alert-success">Tutor modificado correctamente</p>';
+                $mensaje_exito = '<p class="centrado alert alert-success">'. Idioma::lit('operacion_exito') .'</p>';
+                $disabled = " disabled=\"disabled\" ";
                 $boton_enviar = '';
             }
         }
 
-        return self::formulario($boton_enviar,[],$mensaje_exito);
+        return self::formulario($boton_enviar,[],$mensaje_exito,$disabled);
     }
 
-    // Crear un tutor
+    // ✅ Deshabilitar tras éxito
     static function alta()
     {
         $boton_enviar = BOTON_ENVIAR;
-        $mensaje_exito='';
+        $mensaje_exito = '';
+        $disabled = '';
 
         if(Campo::val('paso'))
         {
@@ -158,46 +155,67 @@ class TutorController
             if(!$errores)
             {
                 $tutor = new Tutor();
-                $datos = [
-                    'nombre'=>Campo::val('nombre'),
-                    'email'=>Campo::val('email'),
-                    'antiguedad'=>Campo::val('antiguedad')
-                ];
-                $tutor->insertar($datos);
+                $tutor->insertar([
+                    'nombre'    => Campo::val('nombre'),
+                    'email'     => Campo::val('email'),
+                    'antiguedad'=> Campo::val('antiguedad')
+                ]);
 
-                $mensaje_exito = '<p class="alert alert-success">Tutor creado correctamente</p>';
+                $mensaje_exito = '<p class="centrado alert alert-success">'. Idioma::lit('operacion_exito') .'</p>';
+                $disabled = " disabled=\"disabled\" ";
                 $boton_enviar = '';
             }
         }
 
-        return self::formulario($boton_enviar,[],$mensaje_exito);
+        return self::formulario($boton_enviar,[],$mensaje_exito,$disabled);
     }
 
-    // Listado de tutores
+    // ✅ Paginación y filtro de activos
     static function listado()
     {
+        if(is_numeric(Campo::val('pagina')))
+        {
+            $pagina = Campo::val('pagina');
+            $offset = LISTADO_TOTAL_POR_PAGINA * $pagina;
+        }
+        else
+        {
+            $offset = '0';
+        }
+        $pagina++;
+
         $tutor = new Tutor();
-        $datos = $tutor->get_rows();
+        $datos = $tutor->get_rows([
+            'wheremayor' => ['fecha_baja' => date('Ymd')],
+            'limit'      => LISTADO_TOTAL_POR_PAGINA,
+            'offset'     => $offset
+        ]);
 
         $filas = '';
+        $total_registros = 0;
+
         foreach($datos as $registro)
         {
             $botonera = "
-                <a onclick=\"fetchJSON('/tutores/cons/{$registro['id']}?modo=ajax')\" data-bs-toggle=\"modal\" data-bs-target=\"#ventanaModal\" class=\"btn btn-secondary\">Ver</a>
-                <a onclick=\"fetchJSON('/tutores/modi/{$registro['id']}?modo=ajax')\" data-bs-toggle=\"modal\" data-bs-target=\"#ventanaModal\" class=\"btn btn-primary\">Editar</a>
-                <a href=\"/tutores/baja/{$registro['id']}\" class=\"btn btn-danger\">Borrar</a>
-                <a href=\"/tutores/horario/{$registro['id']}\" class=\"btn btn-info\">Horario</a>
+                <a onclick=\"fetchJSON('/tutores/cons/{$registro['id']}?modo=ajax')\" data-bs-toggle=\"modal\" data-bs-target=\"#ventanaModal\" class=\"btn btn-secondary\"><i class=\"bi bi-search\"></i></a>
+                <a onclick=\"fetchJSON('/tutores/modi/{$registro['id']}?modo=ajax')\" data-bs-toggle=\"modal\" data-bs-target=\"#ventanaModal\" class=\"btn btn-primary\"><i class=\"bi bi-pencil-square\"></i></a>
+                <a href=\"/tutores/baja/{$registro['id']}\" class=\"btn btn-danger\"><i class=\"bi bi-trash\"></i></a>
+                <a href=\"/tutores/horario/{$registro['id']}\" class=\"btn btn-info\"><i class=\"bi bi-calendar\"></i></a>
             ";
 
             $filas .= "
                 <tr>
-                    <th>{$botonera}</th>
+                    <th style=\"white-space:nowrap\" scope=\"row\">{$botonera}</th>
                     <td>{$registro['nombre']}</td>
                     <td>{$registro['email']}</td>
                     <td>{$registro['antiguedad']}</td>
                 </tr>
             ";
+
+            $total_registros++;
         }
+
+        $barra_navegacion = Template::navegacion($total_registros, $pagina);
 
         return "
             <table class=\"table\">
@@ -213,11 +231,11 @@ class TutorController
                     {$filas}
                 </tbody>
             </table>
-            <a href=\"/tutores/alta\" class=\"btn btn-primary\">Alta Tutor</a>
+            {$barra_navegacion}
+            <a href=\"/tutores/alta\" class=\"btn btn-primary\"><i class=\"bi bi-file-earmark-plus\"></i> Alta tutor</a>
         ";
     }
 
-    // Mostrar horario de módulos del tutor
     static function horario($id_tutor)
     {
         $tutor = new Tutor();
